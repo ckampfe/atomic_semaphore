@@ -1,6 +1,6 @@
 # AtomicSemaphore
 
-**TODO: Add description**
+A [semaphore](https://en.wikipedia.org/wiki/Semaphore_(programming)) for Elixir implemented using Erlang's [atomics](https://www.erlang.org/doc/apps/erts/atomics.html).
 
 ## Installation
 
