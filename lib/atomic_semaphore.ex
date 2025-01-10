@@ -30,7 +30,6 @@ defmodule AtomicSemaphore do
   def acquire(ref) do
     case try_acquire(ref) do
       :ok -> :ok
-      {:error, :changed} -> acquire(ref)
       {:error, :no_permits} -> acquire(ref)
     end
   end
@@ -82,15 +81,16 @@ defmodule AtomicSemaphore do
   If this function returns `:ok`, the user must release the given
   permit by calling `release` manually.
 
-  Prefer using `try_acquire/2` or `try_acquire/4` as they automatically
+  Prefer using `try_acquire/2` or `acquire/4` as they automatically
   release their permit.
   """
   @spec try_acquire(:atomics.atomics_ref()) :: :ok | {:error, :changed | :no_permits}
   def try_acquire(ref) do
     expected = :atomics.get(ref, 1)
-    desired = expected - 1
 
     if expected > 0 do
+      desired = expected - 1
+
       case :atomics.compare_exchange(ref, 1, expected, desired) do
         :ok ->
           :ok
@@ -116,9 +116,10 @@ defmodule AtomicSemaphore do
           {:ok, any()} | {:error, :changed | :no_permits}
   def try_acquire(ref, f) when is_function(f, 0) do
     expected = :atomics.get(ref, 1)
-    desired = expected - 1
 
     if expected > 0 do
+      desired = expected - 1
+
       case :atomics.compare_exchange(ref, 1, expected, desired) do
         :ok ->
           try do
@@ -149,9 +150,10 @@ defmodule AtomicSemaphore do
           {:ok, any()} | {:error, :changed | :no_permits}
   def try_acquire(ref, m, f, a) when is_atom(m) and is_atom(f) and is_list(a) do
     expected = :atomics.get(ref, 1)
-    desired = expected - 1
 
     if expected > 0 do
+      desired = expected - 1
+
       case :atomics.compare_exchange(ref, 1, expected, desired) do
         :ok ->
           try do
